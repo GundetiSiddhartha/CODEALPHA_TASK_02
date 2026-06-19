@@ -1,62 +1,101 @@
-# side-channel-weakmap <sup>[![Version Badge][npm-version-svg]][package-url]</sup>
+# vary
 
-[![github actions][actions-image]][actions-url]
-[![coverage][codecov-image]][codecov-url]
-[![License][license-image]][license-url]
-[![Downloads][downloads-image]][downloads-url]
+[![NPM Version][npm-image]][npm-url]
+[![NPM Downloads][downloads-image]][downloads-url]
+[![Node.js Version][node-version-image]][node-version-url]
+[![Build Status][travis-image]][travis-url]
+[![Test Coverage][coveralls-image]][coveralls-url]
 
-[![npm badge][npm-badge-png]][package-url]
+Manipulate the HTTP Vary header
 
-Store information about any JS value in a side channel. Uses WeakMap if available.
+## Installation
 
-Warning: this implementation will leak memory until you `delete` the `key`.
-Use [`side-channel`](https://npmjs.com/side-channel) for the best available strategy.
-
-## Getting started
+This is a [Node.js](https://nodejs.org/en/) module available through the
+[npm registry](https://www.npmjs.com/). Installation is done using the
+[`npm install` command](https://docs.npmjs.com/getting-started/installing-npm-packages-locally): 
 
 ```sh
-npm install --save side-channel-weakmap
+$ npm install vary
 ```
 
-## Usage/Examples
+## API
+
+<!-- eslint-disable no-unused-vars -->
 
 ```js
-const assert = require('assert');
-const getSideChannelList = require('side-channel-weakmap');
-
-const channel = getSideChannelList();
-
-const key = {};
-assert.equal(channel.has(key), false);
-assert.throws(() => channel.assert(key), TypeError);
-
-channel.set(key, 42);
-
-channel.assert(key); // does not throw
-assert.equal(channel.has(key), true);
-assert.equal(channel.get(key), 42);
-
-channel.delete(key);
-assert.equal(channel.has(key), false);
-assert.throws(() => channel.assert(key), TypeError);
+var vary = require('vary')
 ```
 
-## Tests
+### vary(res, field)
 
-Clone the repo, `npm install`, and run `npm test`
+Adds the given header `field` to the `Vary` response header of `res`.
+This can be a string of a single field, a string of a valid `Vary`
+header, or an array of multiple fields.
 
-[package-url]: https://npmjs.org/package/side-channel-weakmap
-[npm-version-svg]: https://versionbadg.es/ljharb/side-channel-weakmap.svg
-[deps-svg]: https://david-dm.org/ljharb/side-channel-weakmap.svg
-[deps-url]: https://david-dm.org/ljharb/side-channel-weakmap
-[dev-deps-svg]: https://david-dm.org/ljharb/side-channel-weakmap/dev-status.svg
-[dev-deps-url]: https://david-dm.org/ljharb/side-channel-weakmap#info=devDependencies
-[npm-badge-png]: https://nodei.co/npm/side-channel-weakmap.png?downloads=true&stars=true
-[license-image]: https://img.shields.io/npm/l/side-channel-weakmap.svg
-[license-url]: LICENSE
-[downloads-image]: https://img.shields.io/npm/dm/side-channel-weakmap.svg
-[downloads-url]: https://npm-stat.com/charts.html?package=side-channel-weakmap
-[codecov-image]: https://codecov.io/gh/ljharb/side-channel-weakmap/branch/main/graphs/badge.svg
-[codecov-url]: https://app.codecov.io/gh/ljharb/side-channel-weakmap/
-[actions-image]: https://img.shields.io/endpoint?url=https://github-actions-badge-u3jn4tfpocch.runkit.sh/ljharb/side-channel-weakmap
-[actions-url]: https://github.com/ljharb/side-channel-weakmap/actions
+This will append the header if not already listed, otherwise leaves
+it listed in the current location.
+
+<!-- eslint-disable no-undef -->
+
+```js
+// Append "Origin" to the Vary header of the response
+vary(res, 'Origin')
+```
+
+### vary.append(header, field)
+
+Adds the given header `field` to the `Vary` response header string `header`.
+This can be a string of a single field, a string of a valid `Vary` header,
+or an array of multiple fields.
+
+This will append the header if not already listed, otherwise leaves
+it listed in the current location. The new header string is returned.
+
+<!-- eslint-disable no-undef -->
+
+```js
+// Get header string appending "Origin" to "Accept, User-Agent"
+vary.append('Accept, User-Agent', 'Origin')
+```
+
+## Examples
+
+### Updating the Vary header when content is based on it
+
+```js
+var http = require('http')
+var vary = require('vary')
+
+http.createServer(function onRequest (req, res) {
+  // about to user-agent sniff
+  vary(res, 'User-Agent')
+
+  var ua = req.headers['user-agent'] || ''
+  var isMobile = /mobi|android|touch|mini/i.test(ua)
+
+  // serve site, depending on isMobile
+  res.setHeader('Content-Type', 'text/html')
+  res.end('You are (probably) ' + (isMobile ? '' : 'not ') + 'a mobile user')
+})
+```
+
+## Testing
+
+```sh
+$ npm test
+```
+
+## License
+
+[MIT](LICENSE)
+
+[npm-image]: https://img.shields.io/npm/v/vary.svg
+[npm-url]: https://npmjs.org/package/vary
+[node-version-image]: https://img.shields.io/node/v/vary.svg
+[node-version-url]: https://nodejs.org/en/download
+[travis-image]: https://img.shields.io/travis/jshttp/vary/master.svg
+[travis-url]: https://travis-ci.org/jshttp/vary
+[coveralls-image]: https://img.shields.io/coveralls/jshttp/vary/master.svg
+[coveralls-url]: https://coveralls.io/r/jshttp/vary
+[downloads-image]: https://img.shields.io/npm/dm/vary.svg
+[downloads-url]: https://npmjs.org/package/vary
