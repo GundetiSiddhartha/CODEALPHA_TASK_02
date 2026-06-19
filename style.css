@@ -1,0 +1,20 @@
+/* Animation Transitions & UI Refinement adjustments */
+.post-card-animation {
+    animation: smoothSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes smoothSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Ensure smooth styling scaling when Switching Theme Engine dark mode classes */
+body, nav, section, div, input, textarea {
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}

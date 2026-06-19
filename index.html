@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocialSpace Ultimate Edition</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 font-sans transition-colors duration-200">
+
+    <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 transition-colors">
+        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 tracking-wide cursor-pointer" onclick="switchTab('feed')">
+                SocialSpace <span class="text-xs bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full font-mono font-bold">v2.0</span>
+            </div>
+            
+            <div class="flex space-x-6 md:space-x-8 text-xl">
+                <button onclick="switchTab('feed')" id="nav-feed" class="text-indigo-600 transition"><i class="fas fa-home"></i></button>
+                <button onclick="switchTab('explore')" id="nav-explore" class="text-gray-400 hover:text-indigo-500 transition"><i class="fas fa-search"></i></button>
+                <button onclick="switchTab('messages')" id="nav-messages" class="text-gray-400 hover:text-indigo-500 transition relative">
+                    <i class="fas fa-envelope"></i>
+                    <span class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 rounded-full text-[9px] text-white flex items-center justify-center font-bold">1</span>
+                </button>
+                <button onclick="switchTab('profile')" id="nav-profile" class="text-gray-400 hover:text-indigo-500 transition"><i class="fas fa-user"></i></button>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleNotifications()" class="relative text-gray-500 dark:text-gray-400 hover:text-indigo-500 text-lg">
+                    <i class="fas fa-bell"></i>
+                    <div class="absolute top-0 right-0 w-2 h-2 bg-indigo-600 rounded-full"></div>
+                </button>
+                <button onclick="toggleDarkMode()" class="w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-yellow-400 flex items-center justify-center hover:opacity-80 transition">
+                    <i id="theme-icon" class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="notification-dropdown" class="hidden absolute right-4 top-16 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xl rounded-xl overflow-hidden z-50">
+            <div class="p-3 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-600 flex justify-between items-center">
+                <span class="font-bold text-xs">Recent Updates</span>
+                <button onclick="toggleNotifications()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xs"></i></button>
+            </div>
+            <div class="divide-y divide-gray-100 dark:divide-gray-700 text-xs max-h-64 overflow-y-auto">
+                <div class="p-3 hover:bg-gray-50 dark:hover:bg-gray-700/30 flex space-x-2">
+                    <div class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">AS</div>
+                    <p><strong>Alex Smith</strong> liked your recent code snapshot. <span class="text-gray-400 block text-[10px]">5m ago</span></p>
+                </div>
+                <div class="p-3 hover:bg-gray-50 dark:hover:bg-gray-700/30 flex space-x-2">
+                    <div class="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold">RK</div>
+                    <p><strong>Rahul Kumar</strong> started following your build repository. <span class="text-gray-400 block text-[10px]">1h ago</span></p>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto px-4 py-8">
+        
+        <section id="page-feed" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="md:col-span-2 space-y-6">
+                <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm space-y-3">
+                    <div class="flex space-x-3">
+                        <div class="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold shadow-inner">U</div>
+                        <textarea id="post-input" placeholder="Share a system build, dynamic update, or project milestone..." rows="3" class="w-full bg-gray-50 dark:bg-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm resize-none"></textarea>
+                    </div>
+                    
+                    <div id="media-input-wrapper" class="hidden animate-fade-in">
+                        <input type="text" id="post-media-url" placeholder="Paste an image URL link here (e.g., https://images.unsplash.com/...)" class="w-full bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+
+                    <div class="flex justify-between items-center pt-3 border-t border-gray-100 dark:border-gray-700">
+                        <button onclick="toggleMediaInput()" class="text-gray-500 hover:text-indigo-500 dark:hover:text-indigo-400 text-xs font-semibold flex items-center space-x-1.5 transition">
+                            <i class="far fa-image text-sm text-indigo-500"></i> <span>Attach Media Card</span>
+                        </button>
+                        <div class="flex items-center space-x-4">
+                            <span class="text-xs text-gray-400" id="char-counter">0 / 280</span>
+                            <button onclick="createPost()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-1.5 rounded-lg text-xs font-bold transition shadow-sm">
+                                Post to Stream
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="feed-container" class="space-y-6"></div>
+            </div>
+
+            <div class="hidden md:block space-y-6">
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm text-center">
+                    <div class="w-16 h-16 rounded-full bg-indigo-600 text-white mx-auto flex items-center justify-center text-xl font-bold shadow-md">U</div>
+                    <h3 class="font-bold text-sm mt-3" id="sidebar-name">CurrentUser</h3>
+                    <p class="text-xs text-gray-400">@current_user</p>
+                    <div class="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 text-xs">
+                        <div><p class="font-bold text-gray-700 dark:text-gray-300 id-count-display">0</p><p class="text-[10px] text-gray-400">Posts Shared</p></div>
+                        <div><p class="font-bold text-gray-700 dark:text-gray-300">412</p><p class="text-[10px] text-gray-400">Network Followers</p></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-explore" class="hidden space-y-6">
+            <div class="relative max-w-md">
+                <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
+                <input type="text" id="explore-search" oninput="filterTrends()" placeholder="Filter trends or topic metrics..." class="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+            </div>
+
+            <h2 class="text-lg font-bold">Trending Dashboard Analytics</h2>
+            <div id="trends-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="trend-card bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex justify-between items-center" data-tag="#webdevelopment">
+                    <div><p class="text-xs text-gray-400">Technology · Trending</p><p class="font-semibold text-sm">#WebDevelopment</p><p class="text-xs text-gray-500">14.2k references</p></div>
+                    <span class="text-indigo-500"><i class="fas fa-chart-line text-lg"></i></span>
+                </div>
+                <div class="trend-card bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex justify-between items-center" data-tag="#datascience">
+                    <div><p class="text-xs text-gray-400">Education · Analytics</p><p class="font-semibold text-sm">#DataScience</p><p class="text-xs text-gray-500">9.7k references</p></div>
+                    <span class="text-indigo-500"><i class="fas fa-chart-line text-lg"></i></span>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-messages" class="hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm grid grid-cols-3 min-h-[450px]">
+                <div class="border-r border-gray-200 dark:border-gray-700 p-4 space-y-3">
+                    <h3 class="font-bold text-sm mb-4">Inbox</h3>
+                    <div class="bg-indigo-50 dark:bg-indigo-950/40 p-2.5 rounded-xl flex items-center space-x-3 cursor-pointer">
+                        <div class="w-8 h-8 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold text-xs">AS</div>
+                        <div class="hidden sm:block overflow-hidden"><p class="text-xs font-bold truncate">Alex Smith</p><p class="text-[10px] text-indigo-500 truncate font-semibold">Active typing conversation...</p></div>
+                    </div>
+                </div>
+                <div class="col-span-2 flex flex-col justify-between">
+                    <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex items-center space-x-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-xs font-bold">Alex Smith</span></div>
+                    <div id="chat-messages-container" class="p-4 space-y-3 flex-1 overflow-y-auto text-xs">
+                        <div class="bg-gray-100 dark:bg-gray-700 p-2.5 rounded-xl max-w-xs text-left">Hey! Checking out your new social platform template for the submission. Looks extremely fast. 🔥</div>
+                    </div>
+                    <div class="p-3 border-t border-gray-100 dark:border-gray-700 flex items-center space-x-2">
+                        <input type="text" id="chat-reply-input" placeholder="Type an encoded message..." class="w-full bg-gray-50 dark:bg-gray-900 rounded-lg px-3 py-2 focus:outline-none border border-gray-200 dark:border-gray-700 text-xs">
+                        <button onclick="dispatchChatMessage()" class="bg-indigo-600 text-white p-2 px-4 rounded-lg text-xs font-bold hover:bg-indigo-700 transition"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-profile" class="hidden space-y-6">
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                <div class="h-36 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+                <div class="p-6 relative pt-16">
+                    <div class="absolute -top-12 left-6 w-24 h-24 rounded-full border-4 border-white dark:border-gray-800 bg-indigo-600 flex items-center justify-center text-white text-3xl font-bold shadow-md">U</div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h2 id="profile-display-name" class="text-xl font-bold">CurrentUser</h2>
+                            <p class="text-xs text-gray-400">@current_user</p>
+                            <p id="profile-bio-text" class="text-xs mt-3 max-w-xl text-gray-600 dark:text-gray-300 leading-relaxed">Building software ecosystems and perfecting user interfaces. Let's build! 💻✨</p>
+                        </div>
+                        <button onclick="updateProfileBio()" class="border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-1.5 rounded-lg text-xs font-bold transition shadow-sm">Edit Profile</button>
+                    </div>
+                    <div class="flex space-x-8 mt-6 pt-4 border-t border-gray-100 dark:border-gray-700 text-xs">
+                        <div><span class="font-bold text-sm id-count-display">0</span> <span class="text-gray-400">Publications</span></div>
+                        <div><span class="font-bold text-sm">412</span> <span class="text-gray-400">Followers</span></div>
+                        <div><span class="font-bold text-sm">189</span> <span class="text-gray-400">Following</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Real-time Text Input Length Monitoring Sub-Engine
+        document.getElementById('post-input').addEventListener('input', (e) => {
+            document.getElementById('char-counter').innerText = `${e.target.value.length} / 280`;
+        });
+
+        window.onload = async () => {
+            // Restore configuration maps from LocalStorage configurations cache layers
+            if(localStorage.savedBio) {
+                document.getElementById('profile-bio-text').innerText = localStorage.savedBio;
+            }
+            if(localStorage.savedName) {
+                document.getElementById('profile-display-name').innerText = localStorage.savedName;
+                document.getElementById('sidebar-name').innerText = localStorage.savedName;
+            }
+            if (localStorage.theme === 'dark') {
+                toggleDarkMode();
+            } else {
+                localStorage.theme = 'light';
+            }
+            await loadFeedStream();
+        };
+
+        async function loadFeedStream() {
+            const response = await fetch('/api/posts');
+            const dataCollection = await response.json();
+            const container = document.getElementById('feed-container');
+            container.innerHTML = '';
+            
+            dataCollection.forEach(item => renderPostCard(item));
+            
+            // Re-calculate statistics references indices lengths
+            const personalCount = dataCollection.filter(i => i.username === 'CurrentUser').length;
+            document.querySelectorAll('.id-count-display').forEach(el => el.innerText = personalCount);
+        }
+
+        function switchTab(targetTab) {
+            ['feed', 'explore', 'messages', 'profile'].forEach(tab => {
+                document.getElementById(`page-${tab}`).classList.add('hidden');
+                document.getElementById(`nav-${tab}`).className = 'text-gray-400 hover:text-indigo-500 transition';
+            });
+            document.getElementById(`page-${targetTab}`).classList.remove('hidden');
+            document.getElementById(`nav-${targetTab}`).className = 'text-indigo-600 dark:text-indigo-400 font-bold scale-105 transition';
+        }
+
+        function toggleMediaInput() {
+            const wrapper = document.getElementById('media-input-wrapper');
+            wrapper.classList.toggle('hidden');
+        }
+
+        function toggleNotifications() {
+            document.getElementById('notification-dropdown').classList.toggle('hidden');
+        }
+
+        async function createPost() {
+            const textNode = document.getElementById('post-input');
+            const mediaNode = document.getElementById('post-media-url');
+            if(!textNode.value.trim()) return;
+
+            await fetch('/api/posts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    username: 'CurrentUser', 
+                    text: textNode.value.trim(),
+                    imageUrl: mediaNode.value.trim() || null
+                })
+            });
+
+            textNode.value = '';
+            mediaNode.value = '';
+            document.getElementById('char-counter').innerText = '0 / 280';
+            document.getElementById('media-input-wrapper').classList.add('hidden');
+            await loadFeedStream();
+        }
+
+        async function triggerLikeEvent(id) {
+            await fetch(`/api/posts/${id}/like`, { method: 'POST' });
+            await loadFeedStream();
+        }
+
+        function renderPostCard(post) {
+            const container = document.getElementById('feed-container');
+            
+            // Build absolute image string block if payload URL segment parsing handles correctly
+            let imageElementStr = '';
+            if(post.imageUrl) {
+                imageElementStr = `<div class="mt-3 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-700 max-h-72 bg-gray-50 flex items-center justify-center">
+                    <img src="${post.imageUrl}" alt="Attached post visual media" class="w-full h-full object-cover" onerror="this.style.display='none'">
+                </div>`;
+            }
+
+            const cardHTML = `
+                <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm space-y-3 entry-card-animation">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 via-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white shadow-sm">${post.username[0].toUpperCase()}</div>
+                        <div>
+                            <h4 class="font-bold text-xs">${post.username}</h4>
+                            <p class="text-[10px] text-gray-400">${post.time}</p>
+                        </div>
+                    </div>
+                    <p class="text-xs leading-relaxed">${post.text}</p>
+                    ${imageElementStr}
+                    <div class="flex space-x-6 pt-3 text-gray-400 text-[11px] border-t border-gray-50 dark:border-gray-700/60">
+                        <button onclick="triggerLikeEvent(${post.id})" class="hover:text-red-500 transition flex items-center space-x-1">
+                            <i class="${post.likes > 0 ? 'fas text-red-500' : 'far'} fa-heart"></i> <span>${post.likes}</span>
+                        </button>
+                    </div>
+                </div>`;
+            container.insertAdjacentHTML('afterbegin', cardHTML);
+        }
+
+        function filterTrends() {
+            const query = document.getElementById('explore-search').value.toLowerCase();
+            document.querySelectorAll('.trend-card').forEach(card => {
+                const text = card.getAttribute('data-tag');
+                card.style.display = text.includes(query) ? 'flex' : 'none';
+            });
+        }
+
+        function dispatchChatMessage() {
+            const input = document.getElementById('chat-reply-input');
+            if(!input.value.trim()) return;
+            const msgBox = document.getElementById('chat-messages-container');
+            const userHTML = `<div class="bg-indigo-600 text-white p-2.5 rounded-xl max-w-xs self-end text-right ml-auto">${input.value.trim()}</div>`;
+            msgBox.insertAdjacentHTML('beforeend', userHTML);
+            input.value = '';
+            msgBox.scrollTop = msgBox.scrollHeight;
+        }
+
+        function updateProfileBio() {
+            const newName = prompt("Enter profile Display Title Name:", document.getElementById('profile-display-name').innerText);
+            const newBio = prompt("Enter profile System Bio segment summary:", document.getElementById('profile-bio-text').innerText);
+            
+            if(newName) {
+                document.getElementById('profile-display-name').innerText = newName;
+                document.getElementById('sidebar-name').innerText = newName;
+                localStorage.savedName = newName;
+            }
+            if(newBio) {
+                document.getElementById('profile-bio-text').innerText = newBio;
+                localStorage.savedBio = newBio;
+            }
+        }
+
+        function toggleDarkMode() {
+            const root = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (root.classList.contains('dark')) {
+                root.classList.remove('dark');
+                icon.className = 'fas fa-moon';
+                localStorage.theme = 'light';
+            } else {
+                root.classList.add('dark');
+                icon.className = 'fas fa-sun';
+                localStorage.theme = 'dark';
+            }
+        }
+    </script>
+</body>
+</html>
